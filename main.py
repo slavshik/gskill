@@ -108,6 +108,51 @@ def tasks(
     typer.echo(f"Found {len(all_tasks)} tasks for '{repo}' ({len(shown)} written to {filename})")
 
 
+@app.command(name="skill-local")
+def skill_local(
+    repo_path: str = typer.Argument(
+        ..., help="Path to a local repository, e.g. ~/projects/my-repo"
+    ),
+    output_dir: str = typer.Option(
+        ".claude/skills",
+        "--output-dir",
+        "-o",
+        help="Directory to write the SKILL.md.",
+    ),
+    skill_model: str = typer.Option(
+        "",
+        "--skill-model",
+        "-s",
+        help="Model for skill generation (e.g. gpt-4o). Env: GSKILL_SKILL_MODEL.",
+    ),
+    base_url: str = typer.Option(
+        "",
+        "--base-url",
+        "-u",
+        help="OpenAI-compatible base URL for local models. Env: OPENAI_BASE_URL.",
+    ),
+) -> None:
+    """Generate a SKILL.md from a local repository (no SWE-smith tasks required)."""
+    from pathlib import Path
+
+    from src.skill import generate_local_skill, save_skill
+
+    resolved = Path(repo_path).expanduser().resolve()
+    repo_name = resolved.name
+
+    typer.echo(f"[gskill] Local repo: {resolved}")
+    typer.echo("[gskill] Generating skill from local files...")
+
+    skill = generate_local_skill(
+        repo_path=str(resolved),
+        model=skill_model or None,
+        base_url=base_url or None,
+    )
+
+    out_path = save_skill(skill, repo_name, output_dir)
+    typer.echo(f"[gskill] Skill ({len(skill)} chars) saved to: {out_path}")
+
+
 def main() -> None:
     app()
 
