@@ -185,7 +185,7 @@ def generate_initial_skill(
     try:
         message = client.chat.completions.create(
             model=resolved_model,
-            max_tokens=2000,
+            max_completion_tokens=2000,
             messages=[
                 {
                     "role": "user",
@@ -309,7 +309,7 @@ def generate_local_skill(
     try:
         message = client.chat.completions.create(
             model=resolved_model,
-            max_tokens=3000,
+            max_completion_tokens=3000,
             messages=[
                 {
                     "role": "user",
